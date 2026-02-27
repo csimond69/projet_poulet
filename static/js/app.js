@@ -24,8 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Boutons de scénario
 document.getElementById("scenario-normal").addEventListener("click", () => {
-    vInput.value = 8;
-    mHandInput.value = 0.7;
+    vInput.value = 10;
+    mHandInput.value = 1;
     fInput.value = 1;
     etaInput.value = 0.3;
     TairInput.value = 20;
@@ -34,18 +34,18 @@ document.getElementById("scenario-normal").addEventListener("click", () => {
 
 document.getElementById("scenario-boxeur").addEventListener("click", () => {
     vInput.value = 15;
-    mHandInput.value = 1.0;
+    mHandInput.value = 1.2;
     fInput.value = 2;
     etaInput.value = 0.4;
     TairInput.value = 30;
     durationInput.value = 3600;
     });
 
-document.getElementById("scenario-delire").addEventListener("click", () => {
+document.getElementById("scenario-extrême").addEventListener("click", () => {
     vInput.value = 25;
     mHandInput.value = 1.5;
     fInput.value = 5;
-    etaInput.value = 0.6;
+    etaInput.value = 0.5;
     TairInput.value = 40;
     durationInput.value = 7200;
     });

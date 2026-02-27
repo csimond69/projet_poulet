@@ -10,7 +10,7 @@ T0 = 20.0            # température initiale du poulet
 h = 10.0             # W/(m^2*K) coefficient de convection
 A = 0.2              # m^2 surface du poulet
 
-m_hand = 0.7         # kg, masse efficace main + bout d'avant-bras
+m_hand = 1        # kg, masse efficace main + bout d'avant-bras
 v = 10.0             # m/s, vitesse de la claque
 eta = 0.3            # fraction de l'énergie cinétique qui chauffe le poulet
 f = 1.0              # claques par seconde
