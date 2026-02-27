@@ -85,14 +85,14 @@ document.getElementById("scenario-extrême").addEventListener("click", () => {
     if (v > 20) {
     warnings.push("La vitesse de claque dépasse 20 m/s : très au-dessus de ce qu'un humain peut produire.");
     }
-    if (f > 5) {
-    warnings.push("La fréquence dépasse 5 claques/s : irréaliste sur la durée pour un humain.");
+    if (f > 2) {
+    warnings.push("La fréquence dépasse 2 claques/s : irréaliste sur la durée pour un humain.");
     }
     if (eta > 0.6) {
-    warnings.push("Un rendement η > 0,6 est très optimiste pour un choc inélastique.");
+    warnings.push("Un rendement η > 0,5 est très optimiste pour un choc inélastique.");
     }
     if (T_air > 45) {
-    warnings.push("Une température d'air > 45 °C correspond déjà à une chaleur extrême.");
+    warnings.push("Une température d'air > 40 °C correspond déjà à une chaleur extrême (canicule).");
     }
     // Constantes physiques (doivent être cohérentes avec app.py)
     const H = 10.0;  // W/(m^2*K)
