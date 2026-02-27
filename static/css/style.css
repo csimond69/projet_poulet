@@ -64,6 +64,15 @@ footer {
   font-size: 11px;
   cursor: default;
 }
+.info-text {
+  margin-top: 4px;
+  padding: 4px 6px;
+  background: #eef6ff;
+  border: 1px solid #0077cc;
+  color: #003a70;
+  font-size: 0.8rem;
+  border-radius: 4px;
+}
 .warning {
   margin-top: 0.5rem;
   padding: 0.5rem;

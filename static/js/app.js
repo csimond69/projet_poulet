@@ -21,6 +21,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const EslapSpan = document.getElementById("Eslap");
   const PbaffesSpan = document.getElementById("Pbaffes");
   const TeqSpan = document.getElementById("Teq");
+  // Gestion du clic sur les "i" d'info
+document.querySelectorAll(".info").forEach((icon) => {
+  icon.addEventListener("click", () => {
+    const text = icon.getAttribute("data-info");
+    // Chercher si une info-text existe déjà juste après
+    let box = icon.nextElementSibling;
+    if (!box || !box.classList.contains("info-text")) {
+      // Créer la boîte
+      box = document.createElement("div");
+      box.className = "info-text";
+      box.textContent = text;
+      icon.parentNode.insertBefore(box, icon.nextSibling);
+    } else {
+      // Si elle existe déjà, on la supprime (toggle)
+      box.remove();
+    }
+  });
+});
 
     // Boutons de scénario
 document.getElementById("scenario-normal").addEventListener("click", () => {
@@ -96,7 +114,7 @@ document.getElementById("scenario-extrême").addEventListener("click", () => {
     // Afficher ou cacher le message
     if (warnings.length > 0) {
     warningDiv.style.display = "block";
-    warningDiv.textContent = warnings.join(" ");
+    warningDiv.innerHTML = warnings.map((w) => "• " + w).join("<br>");
     } else {
     warningDiv.style.display = "none";
     warningDiv.textContent = "";
