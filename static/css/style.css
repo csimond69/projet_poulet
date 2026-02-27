@@ -69,15 +69,15 @@ footer {
   padding: 4px 6px;
   background: #cca47e;
   border: 1px solid #cca47e;
-  color: #6d4724;
+  color: #ffffff;
   font-size: 0.8rem;
   border-radius: 4px;
 }
 .warning {
   margin-top: 0.5rem;
   padding: 0.5rem;
-  background: #ffe4c4;
-  border: 1px solid #ff9800;
-  color: #7a4b00;
+  background: #f8f2eae9;
+  border: 1px solid #fc0000;
+  color: #fc0000;
   font-size: 0.9rem;
 }
