@@ -94,7 +94,7 @@ def simulate():
     v = float(data.get("v", 10.0))
     f = float(data.get("f", 1.0))
     m_hand = float(data.get("m_hand", 0.7))
-    eta = float(data.get("eta", 0.3))
+    eta = (M_CHICKEN / (M_CHICKEN + m_hand))**2
     duration = float(data.get("duration", 3600.0))
     T_air = float(data.get("T_air", 20.0))
 
@@ -116,6 +116,7 @@ def simulate():
     return jsonify({
         "times": times,   # en secondes
         "temps": temps,   # en °C
+        "eta": eta
     })
 
 

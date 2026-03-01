@@ -75,11 +75,16 @@ document.getElementById("scenario-extrême").addEventListener("click", () => {
     const v = parseFloat(document.getElementById("v").value);
     const m_hand = parseFloat(document.getElementById("m_hand").value);
     const f = parseFloat(document.getElementById("f").value);
-    const eta = parseFloat(document.getElementById("eta").value);
+    
     const duration = parseFloat(document.getElementById("duration").value);
     const T_air = parseFloat(document.getElementById("T_air").value);
+    // Calcul de η théorique
+    const M_CHICKEN = 1.5; // kg
+    const eta = Math.pow(M_CHICKEN / (M_CHICKEN + m_hand), 2);
 
-    const payload = { v, m_hand, f, eta, duration, T_air };
+    document.getElementById("eta-display").textContent = eta.toFixed(2);
+
+    const payload = { v, m_hand, f, duration, T_air };
     const warnings = [];
 
     if (v > 20) {
@@ -88,13 +93,11 @@ document.getElementById("scenario-extrême").addEventListener("click", () => {
     if (f > 2) {
     warnings.push("La fréquence dépasse 2 claques/s : irréaliste sur la durée pour un humain.");
     }
-    if (eta > 0.6) {
-    warnings.push("Un rendement η > 0,5 est très optimiste pour un choc inélastique.");
-    }
+    
     if (T_air > 45) {
     warnings.push("Une température d'air > 40 °C correspond déjà à une chaleur extrême (canicule).");
     }
-    // Constantes physiques (doivent être cohérentes avec app.py)
+    // Constantes physiques 
     const H = 10.0;  // W/(m^2*K)
     const A = 0.2;   // m^2
 
