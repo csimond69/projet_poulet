@@ -1,127 +1,119 @@
-/**
- * Script principal du simulateur Poulet aux Baffes
- * ===============================================
- * - Récupère les paramètres du formulaire
- * - Envoie une requête JSON à /simulate
- * - Affiche la courbe T(t) avec Chart.js
- */
-
 document.addEventListener("DOMContentLoaded", () => {
   const warningDiv = document.getElementById("warning");
   const form = document.getElementById("sim-form");
   const TmaxSpan = document.getElementById("Tmax");
   const ctx = document.getElementById("tempChart").getContext("2d");
-  let chart = null;
-  const vInput = document.getElementById("v");
-  const mHandInput = document.getElementById("m_hand");
-  const fInput = document.getElementById("f");
-  const etaInput = document.getElementById("eta");
-  const TairInput = document.getElementById("T_air");
-  const durationInput = document.getElementById("duration");
   const EslapSpan = document.getElementById("Eslap");
   const PbaffesSpan = document.getElementById("Pbaffes");
   const TeqSpan = document.getElementById("Teq");
-  // Gestion du clic sur les "i" d'info
-document.querySelectorAll(".info").forEach((icon) => {
-  icon.addEventListener("click", () => {
-    const text = icon.getAttribute("data-info");
-    // Chercher si une info-text existe déjà juste après
-    let box = icon.nextElementSibling;
-    if (!box || !box.classList.contains("info-text")) {
-      // Créer la boîte
-      box = document.createElement("div");
-      box.className = "info-text";
-      box.textContent = text;
-      icon.parentNode.insertBefore(box, icon.nextSibling);
-    } else {
-      // Si elle existe déjà, on la supprime (toggle)
-      box.remove();
-    }
+  const etaDisplay = document.getElementById("eta-display");
+
+  const vInput = document.getElementById("v");
+  const mHandInput = document.getElementById("m_hand");
+  const fInput = document.getElementById("f");
+  const TairInput = document.getElementById("T_air");
+  const durationInput = document.getElementById("duration");
+
+  let chart = null;
+
+  // Info bubbles on "i"
+  document.querySelectorAll(".info").forEach((icon) => {
+    icon.addEventListener("click", () => {
+      const text = icon.getAttribute("data-info");
+      let box = icon.nextElementSibling;
+      if (!box || !box.classList.contains("info-text")) {
+        box = document.createElement("div");
+        box.className = "info-text";
+        box.textContent = text;
+        icon.parentNode.insertBefore(box, icon.nextSibling);
+      } else {
+        box.remove();
+      }
+    });
   });
-});
 
-    // Boutons de scénario
-document.getElementById("scenario-normal").addEventListener("click", () => {
-    vInput.value = 10;
-    mHandInput.value = 1;
-    fInput.value = 1;
-    etaInput.value = 0.3;
-    TairInput.value = 20;
-    durationInput.value = 3600;
-    });
+  // Physical constants (must match app.py)
+  const CHICKEN_MASS = 1.5;  // kg
+  const H = 10.0;            // W/(m^2*K)
+  const A = 0.2;             // m^2
 
-document.getElementById("scenario-boxeur").addEventListener("click", () => {
-    vInput.value = 15;
-    mHandInput.value = 1.2;
-    fInput.value = 2;
-    etaInput.value = 0.4;
-    TairInput.value = 30;
-    durationInput.value = 3600;
+  // Preset scenarios
+  const btnScenarioNormal = document.getElementById("scenario-normal");
+  if (btnScenarioNormal) {
+    btnScenarioNormal.addEventListener("click", () => {
+      vInput.value = 10;
+      mHandInput.value = 1;
+      fInput.value = 1;
+      TairInput.value = 20;
+      durationInput.value = 3600;
     });
+  }
 
-document.getElementById("scenario-extrême").addEventListener("click", () => {
-    vInput.value = 25;
-    mHandInput.value = 1.5;
-    fInput.value = 5;
-    etaInput.value = 0.5;
-    TairInput.value = 40;
-    durationInput.value = 7200;
+  const btnScenarioBoxer = document.getElementById("scenario-boxeur");
+  if (btnScenarioBoxer) {
+    btnScenarioBoxer.addEventListener("click", () => {
+      vInput.value = 15;
+      mHandInput.value = 1.2;
+      fInput.value = 2;
+      TairInput.value = 30;
+      durationInput.value = 3600;
     });
+  }
+
+  const btnScenarioCrazy = document.getElementById("scenario-extrême"); // ou "scenario-extrême" si tu as changé l'id dans le HTML
+  if (btnScenarioCrazy) {
+    btnScenarioCrazy.addEventListener("click", () => {
+      vInput.value = 25;
+      mHandInput.value = 1.5;
+      fInput.value = 5;
+      TairInput.value = 40;
+      durationInput.value = 7200;
+    });
+  }
 
   form.addEventListener("submit", async (event) => {
-    event.preventDefault(); // Empêche le rechargement de la page
+    event.preventDefault();
 
-    // Récupération des valeurs du formulaire
-    const v = parseFloat(document.getElementById("v").value);
-    const m_hand = parseFloat(document.getElementById("m_hand").value);
-    const f = parseFloat(document.getElementById("f").value);
-    
-    const duration = parseFloat(document.getElementById("duration").value);
-    const T_air = parseFloat(document.getElementById("T_air").value);
-    // Calcul de η théorique
-    const M_CHICKEN = 1.5; // kg
-    const eta = Math.pow(M_CHICKEN / (M_CHICKEN + m_hand), 2);
+    const v = parseFloat(vInput.value);
+    const mHand = parseFloat(mHandInput.value);
+    const f = parseFloat(fInput.value);
+    const duration = parseFloat(durationInput.value);
+    const T_air = parseFloat(TairInput.value);
 
-    document.getElementById("eta-display").textContent = eta.toFixed(2);
+    // η = (M / (M + m))²
+    const eta = Math.pow(CHICKEN_MASS / (CHICKEN_MASS + mHand), 2);
+    if (etaDisplay) etaDisplay.textContent = eta.toFixed(2);
 
-    const payload = { v, m_hand, f, duration, T_air };
+    const payload = { v, m_hand: mHand, f, duration, T_air };
+
     const warnings = [];
-
     if (v > 20) {
-    warnings.push("La vitesse de claque dépasse 20 m/s : très au-dessus de ce qu'un humain peut produire.");
+      warnings.push("La vitesse de claque dépasse 20 m/s : très au-dessus de ce qu'un humain peut produire.");
     }
     if (f > 2) {
-    warnings.push("La fréquence dépasse 2 claques/s : irréaliste sur la durée pour un humain.");
+      warnings.push("La fréquence dépasse 2 claques/s : irréaliste sur la durée pour un humain.");
     }
-    
-    if (T_air > 45) {
-    warnings.push("Une température d'air > 40 °C correspond déjà à une chaleur extrême (canicule).");
+    if (T_air > 40) {
+      warnings.push("Une température d'air > 40 °C correspond déjà à une chaleur extrême (canicule).");
     }
-    // Constantes physiques 
-    const H = 10.0;  // W/(m^2*K)
-    const A = 0.2;   // m^2
 
-    // Calcul des grandeurs dérivées
-    const E_kin = 0.5 * m_hand * v * v;    // J
-    const E_slap = eta * E_kin;            // J utiles
-    const P_baffes = E_slap * f;           // W
+    if (warnings.length > 0) {
+      warningDiv.style.display = "block";
+      warningDiv.innerHTML = warnings.map((w) => "• " + w).join("<br>");
+    } else {
+      warningDiv.style.display = "none";
+      warningDiv.innerHTML = "";
+    }
 
-    // T_eq = T_air + P_baffes / (h A)
+    // Derived quantities
+    const E_kin = 0.5 * mHand * v * v;
+    const E_slap = eta * E_kin;
+    const P_baffes = E_slap * f;
     const Teq = T_air + P_baffes / (H * A);
 
-    // Mettre à jour l'affichage (arrondis)
     EslapSpan.textContent = E_slap.toFixed(1);
     PbaffesSpan.textContent = P_baffes.toFixed(1);
     TeqSpan.textContent = Teq.toFixed(1);
-
-    // Afficher ou cacher le message
-    if (warnings.length > 0) {
-    warningDiv.style.display = "block";
-    warningDiv.innerHTML = warnings.map((w) => "• " + w).join("<br>");
-    } else {
-    warningDiv.style.display = "none";
-    warningDiv.textContent = "";
-    }
 
     try {
       const response = await fetch("/simulate", {
@@ -135,37 +127,29 @@ document.getElementById("scenario-extrême").addEventListener("click", () => {
       }
 
       const data = await response.json();
-      const times = data.times; // en secondes
-      const temps = data.temps; // en °C
+      const timesSec = data.times;
+      const temps = data.temps;
 
-      // Convertir les temps en minutes pour l'affichage
-      const timesMinutes = times.map((t) => t / 60.0);
-
-      // Construire les points {x: temps_en_min, y: température}
-      const points = timesMinutes.map((tm, i) => ({
+      const timesMin = timesSec.map((t) => t / 60.0);
+      const points = timesMin.map((tm, i) => ({
         x: tm,
         y: temps[i],
       }));
 
-      // Mettre à jour / créer le graphique
       if (chart) {
-        // On met à jour les données
         chart.data.datasets[0].data = points;
-        // On met à jour la borne max de l'axe X
         chart.options.scales.x.min = 0;
-        chart.options.scales.x.max = Math.max(...timesMinutes);
+        chart.options.scales.x.max = Math.max(...timesMin);
         chart.update();
       } else {
         chart = new Chart(ctx, {
           type: "line",
           data: {
-            // Pas de "labels" ici : pour un axe linéaire,
-            // on utilise directement x dans les points {x, y}
             datasets: [
               {
                 label: "Température du poulet (°C)",
                 data: points,
-                parsing: false, // important pour que Chart.js comprenne {x, y}
+                parsing: false,
                 borderColor: "rgba(255, 99, 132, 1)",
                 backgroundColor: "rgba(255, 99, 132, 0.2)",
                 borderWidth: 2,
@@ -184,9 +168,8 @@ document.getElementById("scenario-extrême").addEventListener("click", () => {
                   text: "Temps (minutes)",
                 },
                 min: 0,
-                max: Math.max(...timesMinutes),
+                max: Math.max(...timesMin),
                 ticks: {
-                  // Une graduation tous les 5 minutes
                   stepSize: 5,
                 },
               },
@@ -203,7 +186,6 @@ document.getElementById("scenario-extrême").addEventListener("click", () => {
         });
       }
 
-      // Afficher la température maximale atteinte
       const Tmax = Math.max(...temps);
       TmaxSpan.textContent = Tmax.toFixed(1);
     } catch (err) {
